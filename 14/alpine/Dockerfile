@@ -70,6 +70,7 @@ RUN set -eux; \
 	\
 	cd /usr/src/postgresql; \
 # update "DEFAULT_PGSOCKET_DIR" to "/var/run/postgresql" (matching Debian)
+#这也是awk找到特定行并替换其中某个字段的方法
 # see https://anonscm.debian.org/git/pkg-postgresql/postgresql.git/tree/debian/patches/51-default-sockets-in-var.patch?id=8b539fcb3e093a521c095e70bdfa76887217b89f
 	awk '$1 == "#define" && $2 == "DEFAULT_PGSOCKET_DIR" && $3 == "\"/tmp\"" { $3 = "\"/var/run/postgresql\""; print; next } { print }' src/include/pg_config_manual.h > src/include/pg_config_manual.h.new; \
 	grep '/var/run/postgresql' src/include/pg_config_manual.h.new; \
