@@ -38,8 +38,8 @@ RUN set -eux; \
 		--strip-components 1 \
 	; \
 	rm postgresql.tar.bz2; \
-	\
-	apk add --no-cache --virtual .build-deps \   #这是apk命令，为这些包起个名字后面以便后面删除
+	# #这是apk命令，为这些包起个名字后面以便后面删除
+	apk add --no-cache --virtual .build-deps \  
 		bison \
 		coreutils \
 		dpkg-dev dpkg \
@@ -122,6 +122,7 @@ RUN set -eux; \
 			| sort -u \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 # Remove plperl, plpython and pltcl dependencies by default to save image size
+#上面是调用查询elf，找有依赖的so文件,将,换成换行符并去重，如果在/usr/local/lib/下存在就跳过，并去掉perl,python,tcl等依赖
 # To use the pl extensions, those have to be installed in a derived image
 			| grep -v -e perl -e python -e tcl \
 	)"; \
