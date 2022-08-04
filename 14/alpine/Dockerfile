@@ -39,7 +39,7 @@ RUN set -eux; \
 	; \
 	rm postgresql.tar.bz2; \
 	\
-	apk add --no-cache --virtual .build-deps \
+	apk add --no-cache --virtual .build-deps \   //这是apk命令，为这些包起个名字后面以便后面删除
 		bison \
 		coreutils \
 		dpkg-dev dpkg \
