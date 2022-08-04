@@ -10,6 +10,8 @@ file_env() {
 	local var="$1"
 	local fileVar="${var}_FILE"
 	local def="${2:-}"
+	#这里${2:-}其实就是$2
+	#${!var:-}则是获取$var的值
 	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
 		echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
 		exit 1
@@ -27,6 +29,7 @@ file_env() {
 # check to see if this file is being run or sourced from another script
 _is_sourced() {
 	# https://unix.stackexchange.com/a/215279
+	#如果这个参数大于2
 	[ "${#FUNCNAME[@]}" -ge 2 ] \
 		&& [ "${FUNCNAME[0]}" = '_is_sourced' ] \
 		&& [ "${FUNCNAME[1]}" = 'source' ]
@@ -48,6 +51,7 @@ docker_create_db_directories() {
 	if [ -n "${POSTGRES_INITDB_WALDIR:-}" ]; then
 		mkdir -p "$POSTGRES_INITDB_WALDIR"
 		if [ "$user" = '0' ]; then
+		#这里\!就是!,{} +则是优化，使一条命令尽可能多地操作文件
 			find "$POSTGRES_INITDB_WALDIR" \! -user postgres -exec chown postgres '{}' +
 		fi
 		chmod 700 "$POSTGRES_INITDB_WALDIR"
