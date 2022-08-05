@@ -11,7 +11,7 @@ file_env() {
 	local fileVar="${var}_FILE"
 	local def="${2:-}"
 	#这里${2:-}其实就是$2
-	#${!var:-}则是获取$var的值
+	#${!var:-}则是获取以$var的值为变量名的值。见https://unix.stackexchange.com/questions/222487/bash-dynamic-variable-variable-names
 	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
 		echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
 		exit 1
