@@ -311,7 +311,8 @@ _main() {
 	if [ "${1:0:1}" = '-' ]; then
 		set -- postgres "$@"
 	fi
-
+        
+	#下面返回值为1这里才为真
 	if [ "$1" = 'postgres' ] && ! _pg_want_help "$@"; then
 		docker_setup_env
 		# setup data directories and permissions (when run as root)
