@@ -68,14 +68,17 @@ docker_create_db_directories() {
 # arguments to `initdb` can be passed via POSTGRES_INITDB_ARGS or as arguments to this function
 # `initdb` automatically creates the "postgres", "template0", and "template1" dbnames
 # this is also where the database user is created, specified by `POSTGRES_USER` env
+#进行初始化时用户必须存在
 docker_init_database_dir() {
 	# "initdb" is particular about the current user existing in "/etc/passwd", so we use "nss_wrapper" to fake that if necessary
 	# see https://github.com/docker-library/postgres/pull/253, https://github.com/docker-library/postgres/issues/359, https://cwrap.org/nss_wrapper.html
 	local uid; uid="$(id -u)"
+	#如果用户不存在
 	if ! getent passwd "$uid" &> /dev/null; then
 		# see if we can find a suitable "libnss_wrapper.so" (https://salsa.debian.org/sssd-team/nss-wrapper/-/commit/b9925a653a54e24d09d9b498a2d913729f7abb15)
 		local wrapper
 		for wrapper in {/usr,}/lib{/*,}/libnss_wrapper.so; do
+		        #-s FILE	FILE exists and it's size is greater than zero (ie. it is not empty).
 			if [ -s "$wrapper" ]; then
 				NSS_WRAPPER_PASSWD="$(mktemp)"
 				NSS_WRAPPER_GROUP="$(mktemp)"
@@ -87,11 +90,12 @@ docker_init_database_dir() {
 			fi
 		done
 	fi
-
+       #如果这个变量存在
 	if [ -n "${POSTGRES_INITDB_WALDIR:-}" ]; then
+	#将第一个位置参数改为--waldir，第二个改为$POSTGRES_INITDB_WALDIR，其他不变
 		set -- --waldir "$POSTGRES_INITDB_WALDIR" "$@"
 	fi
-
+        #初始化
 	eval 'initdb --username="$POSTGRES_USER" --pwfile=<(echo "$POSTGRES_PASSWORD") '"$POSTGRES_INITDB_ARGS"' "$@"'
 
 	# unset/cleanup "nss_wrapper" bits
