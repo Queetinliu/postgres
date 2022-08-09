@@ -112,6 +112,7 @@ docker_init_database_dir() {
 docker_verify_minimum_env() {
 	# check password first so we can output the warning before postgres
 	# messes it up
+	#密码长度大于100打印这个提示
 	if [ "${#POSTGRES_PASSWORD}" -ge 100 ]; then
 		cat >&2 <<-'EOWARN'
 
@@ -124,6 +125,7 @@ docker_verify_minimum_env() {
 
 		EOWARN
 	fi
+	#-z STRING	The lengh of STRING is zero (ie it is empty).密码未定义且认证方式不是trust
 	if [ -z "$POSTGRES_PASSWORD" ] && [ 'trust' != "$POSTGRES_HOST_AUTH_METHOD" ]; then
 		# The - option suppresses leading tabs but *not* spaces. :)
 		cat >&2 <<-'EOE'
@@ -161,6 +163,7 @@ docker_verify_minimum_env() {
 # usage: docker_process_init_files [file [file [...]]]
 #    ie: docker_process_init_files /always-initdb.d/*
 # process initializer files, based on file extensions and permissions
+#执行sh文件或sql文件,$f取值$@
 docker_process_init_files() {
 	# psql here for backwards compatibility "${psql[@]}"
 	psql=( docker_process_sql )
@@ -213,6 +216,7 @@ docker_setup_db() {
 			SELECT 1 FROM pg_database WHERE datname = :'db' ;
 		EOSQL
 	)"
+	#数据库不存在则创建
 	if [ -z "$dbAlreadyExists" ]; then
 		POSTGRES_DB= docker_process_sql --dbname postgres --set db="$POSTGRES_DB" <<-'EOSQL'
 			CREATE DATABASE :"db" ;
@@ -223,6 +227,7 @@ docker_setup_db() {
 
 # Loads various settings that are used elsewhere in the script
 # This should be called before any other functions
+#file_env是前面的方法
 docker_setup_env() {
 	file_env 'POSTGRES_PASSWORD'
 
@@ -269,8 +274,9 @@ docker_temp_server_start() {
 
 	# internal start of server in order to allow setup using psql client
 	# does not listen on external TCP/IP and waits until start finishes
+	#这里将后面2项参数加到$@
 	set -- "$@" -c listen_addresses='' -p "${PGPORT:-5432}"
-
+        #如果$PGUSER存在则为这个值，否则为$POSTGRES_USER
 	PGUSER="${PGUSER:-$POSTGRES_USER}" \
 	pg_ctl -D "$PGDATA" \
 		-o "$(printf '%q ' "$@")" \
