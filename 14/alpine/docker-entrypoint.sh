@@ -321,7 +321,7 @@ _main() {
 			# then restart script as postgres user
 			exec su-exec postgres "$BASH_SOURCE" "$@"
 		fi
-
+                #切换到postgres用户继续执行
 		# only run initialization on an empty data directory
 		if [ -z "$DATABASE_ALREADY_EXISTS" ]; then
 			docker_verify_minimum_env
